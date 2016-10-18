@@ -1,0 +1,92 @@
+---
+- name: Use RabbitMQ.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: DEFAULT
+    option:  rpc_backend
+    value:   rabbit
+
+- name: Configure RabbitMQ access.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: oslo_messaging_rabbit
+    option:  '{{ item.key }}'
+    value:   '{{ item.value }}'
+  with_dict:
+    rabbit_host:     '{{ rabbitmq_host }}'
+    rabbit_userid:   '{{ rabbitmq_user }}'
+    rabbit_password: '{{ rabbitmq_password }}'
+
+- name: Use Keystone.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: DEFAULT
+    option:  auth_strategy
+    value:   keystone
+
+- name: Configure Keystone access.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: keystone_authtoken
+    option:  '{{ item.key }}'
+    value:   '{{ item.value }}'
+  with_dict:
+    auth_uri:            'http://{{ keystone_host }}:5000'
+    auth_url:            'http://{{ keystone_host }}:35357'
+    memcached_servers:   '{{ keystone_host }}:11211'
+    auth_type:           password
+    project_domain_name: default
+    user_domain_name:    default
+    project_name:        service
+    username:            nova
+    password:            '{{ keystone_password }}'
+
+- name: Configure management interface IP.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: DEFAULT
+    option:  my_ip
+    value:   '{{ ip_address }}'
+
+- name: Configure networking.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: DEFAULT
+    option:  '{{ item.key }}'
+    value:   '{{ item.value }}'
+  with_dict:
+    use_neutron:     true
+    firewall_driver: nova.virt.firewall.NoopFirewallDriver
+
+- name: Configure remote console access.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: vnc
+    option:  '{{ item.key }}'
+    value:   '{{ item.value }}'
+  with_dict:
+    enabled:                       true
+    vncserver_listen:              0.0.0.0
+    vncserver_proxyclient_address: '{{ ip_address }}'
+    novncproxy_base_url:           'http://{{ controller_ip_address }}:6080/vnc_auto.html'
+
+- name: Configure Glance access.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: glance
+    option:  api_servers
+    value:   'http://{{ glance_host }}:9292'
+
+- name: Configure lock path.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: oslo_concurrency
+    option:  lock_path
+    value:   /var/lib/nova/tmp
+
+- name: Configure instance name format.
+  ini_file:
+    dest:    /etc/nova/nova.conf
+    section: DEFAULT
+    option:  instance_name_template
+    value:   '%\(uuid\)s'

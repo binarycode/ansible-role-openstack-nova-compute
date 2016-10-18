@@ -1,0 +1,5 @@
+---
+- name: Install Nova packages.
+  yum:
+    name:  openstack-nova-compute
+    state: present

@@ -1,0 +1,12 @@
+---
+ip_address:
+controller_ip_address:
+
+keystone_host: controller
+keystone_password:
+
+rabbitmq_host: controller
+rabbitmq_user:
+rabbitmq_password:
+
+glance_host: controller

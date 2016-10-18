@@ -1,0 +1,9 @@
+---
+- name: Configure Nova services.
+  service:
+    name:    '{{ item }}'
+    state:   started
+    enabled: yes
+  with_items:
+    - libvirtd.service
+    - openstack-nova-compute.service
